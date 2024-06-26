@@ -1,0 +1,367 @@
+{
+	"info": {
+		"_postman_id": "f79ac36a-6b70-419f-8991-37cb6a0519c4",
+		"name": "Report-Eapi",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33835952"
+	},
+	"item": [
+		{
+			"name": "Local",
+			"item": [
+				{
+					"name": "List-File-Name",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "client_id",
+								"value": "597258f2c8984f8e92443f11daa231c7"
+							},
+							{
+								"key": "client_secret",
+								"value": "ea7BEf304E6C4D8d9A9F27aAA0970377"
+							},
+							{
+								"key": "directory",
+								"value": "Data"
+							},
+							{
+								"key": "fileName",
+								"value": "monthlyReport.csv",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n{\r\n    \"EMPLOYEE_ID\": 300,\r\n    \"FIRST_NAME\": \"Jaikishore\",\r\n    \"LAST_NAME\": \"OConnell\",\r\n    \"EMAIL\": \"DOCONNEL\",\r\n    \"PHONE_NUMBER\": \"650.507.9833\",\r\n    \"HIRE_DATE\": \"21-JUN-07\",\r\n    \"JOB_ID\": \"SH_CLERK\",\r\n    \"SALARY\": 2600,\r\n    \"COMMISSION_PCT\": \"-\",\r\n    \"MANAGER_ID\": 124,\r\n    \"DEPARTMENT_ID\": 50\r\n  }\r\n  \r\n  ]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/fileList",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"fileList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Report-Data",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "client_id",
+								"value": "597258f2c8984f8e92443f11daa231c7"
+							},
+							{
+								"key": "client_secret",
+								"value": "ea7BEf304E6C4D8d9A9F27aAA0970377"
+							},
+							{
+								"key": "directory",
+								"value": "Data",
+								"disabled": true
+							},
+							{
+								"key": "fileName",
+								"value": "monthlyReport.csv",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/Report?fileName=dailyReport.csv&directory=Data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"Report"
+							],
+							"query": [
+								{
+									"key": "fileName",
+									"value": "dailyReport.csv"
+								},
+								{
+									"key": "directory",
+									"value": "Data"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add-Report-Data",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "client_id",
+								"value": "597258f2c8984f8e92443f11daa231c7"
+							},
+							{
+								"key": "client_secret",
+								"value": "ea7BEf304E6C4D8d9A9F27aAA0970377"
+							},
+							{
+								"key": "directory",
+								"value": "Data",
+								"disabled": true
+							},
+							{
+								"key": "fileName",
+								"value": "monthlyReport.csv",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n\r\n  {\r\n        \"EMPLOYEE_ID\": \"198\",\r\n        \"FIRST_NAME\": \"Donald\",\r\n        \"LAST_NAME\": \"OConnell\",\r\n        \"EMAIL\": \"DOCONNEL\",\r\n        \"PHONE_NUMBER\": \"650.507.9833\",\r\n        \"HIRE_DATE\": \"21-JUN-07\",\r\n        \"JOB_ID\": \"SH_CLERK\",\r\n        \"SALARY\": \"300000\",\r\n        \"COMMISSION_PCT\": \"-\",\r\n        \"MANAGER_ID\": \"124\",\r\n        \"DEPARTMENT_ID\": \"50\"\r\n    }\r\n  ]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/addData?fileName=dailyReport.csv&directory=Data",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"addData"
+							],
+							"query": [
+								{
+									"key": "fileName",
+									"value": "dailyReport.csv"
+								},
+								{
+									"key": "directory",
+									"value": "Data"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cloudhub",
+			"item": [
+				{
+					"name": "List-File-Name",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "client_id",
+								"value": "597258f2c8984f8e92443f11daa231c7"
+							},
+							{
+								"key": "client_secret",
+								"value": "ea7BEf304E6C4D8d9A9F27aAA0970377"
+							},
+							{
+								"key": "directory",
+								"value": "Data"
+							},
+							{
+								"key": "fileName",
+								"value": "monthlyReport.csv",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n{\r\n    \"EMPLOYEE_ID\": 300,\r\n    \"FIRST_NAME\": \"Jaikishore\",\r\n    \"LAST_NAME\": \"OConnell\",\r\n    \"EMAIL\": \"DOCONNEL\",\r\n    \"PHONE_NUMBER\": \"650.507.9833\",\r\n    \"HIRE_DATE\": \"21-JUN-07\",\r\n    \"JOB_ID\": \"SH_CLERK\",\r\n    \"SALARY\": 2600,\r\n    \"COMMISSION_PCT\": \"-\",\r\n    \"MANAGER_ID\": 124,\r\n    \"DEPARTMENT_ID\": 50\r\n  }\r\n  \r\n  ]\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://report-eapi-40lnz0.5sc6y6-3.usa-e2.cloudhub.io/api/fileList",
+							"protocol": "https",
+							"host": [
+								"report-eapi-40lnz0",
+								"5sc6y6-3",
+								"usa-e2",
+								"cloudhub",
+								"io"
+							],
+							"path": [
+								"api",
+								"fileList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get-Report-Data",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "client_id",
+								"value": "597258f2c8984f8e92443f11daa231c7"
+							},
+							{
+								"key": "client_secret",
+								"value": "ea7BEf304E6C4D8d9A9F27aAA0970377"
+							},
+							{
+								"key": "directory",
+								"value": "Data",
+								"disabled": true
+							},
+							{
+								"key": "fileName",
+								"value": "monthlyReport.csv",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://report-eapi-40lnz0.5sc6y6-3.usa-e2.cloudhub.io/api/Report?fileName=dailyReport.csv&directory=Data",
+							"protocol": "https",
+							"host": [
+								"report-eapi-40lnz0",
+								"5sc6y6-3",
+								"usa-e2",
+								"cloudhub",
+								"io"
+							],
+							"path": [
+								"api",
+								"Report"
+							],
+							"query": [
+								{
+									"key": "fileName",
+									"value": "dailyReport.csv"
+								},
+								{
+									"key": "directory",
+									"value": "Data"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add-Report-Data",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "client_id",
+								"value": "597258f2c8984f8e92443f11daa231c7"
+							},
+							{
+								"key": "client_secret",
+								"value": "ea7BEf304E6C4D8d9A9F27aAA0970377"
+							},
+							{
+								"key": "directory",
+								"value": "Data",
+								"disabled": true
+							},
+							{
+								"key": "fileName",
+								"value": "monthlyReport.csv",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"EMPLOYEE_ID\": \"401\",\r\n        \"FIRST_NAME\": \"jakishore\",\r\n        \"LAST_NAME\": \"N\",\r\n        \"EMAIL\": \"Jai@gmail.com\",\r\n        \"PHONE_NUMBER\": \"650.507.9833\",\r\n        \"HIRE_DATE\": \"21-JUN-07\",\r\n        \"JOB_ID\": \"SH_CLERK\",\r\n        \"SALARY\": \"2600\",\r\n        \"COMMISSION_PCT\": \"-\",\r\n        \"MANAGER_ID\": \"124\",\r\n        \"DEPARTMENT_ID\": \"50\"\r\n    }]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://report-eapi-40lnz0.5sc6y6-3.usa-e2.cloudhub.io/api/addData?fileName=dailyReport.csv&directory=Data",
+							"protocol": "https",
+							"host": [
+								"report-eapi-40lnz0",
+								"5sc6y6-3",
+								"usa-e2",
+								"cloudhub",
+								"io"
+							],
+							"path": [
+								"api",
+								"addData"
+							],
+							"query": [
+								{
+									"key": "fileName",
+									"value": "dailyReport.csv"
+								},
+								{
+									"key": "directory",
+									"value": "Data"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

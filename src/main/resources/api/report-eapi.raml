@@ -1,0 +1,42 @@
+#%RAML 1.0
+title: Report-eapi
+protocols: [HTTP,HTTPS]
+mediaType:  application/json
+uses:
+  customLib :  Library/library.raml
+
+/Report :
+  is: [customLib.QueryParams, customLib.Client_id_Enforcement]
+  description: Using GET method, it get the report Data from the PAPI. Send the queryParameters as header to the PAPI
+  get: 
+    responses:
+      200:
+        body:
+          application/json:  
+            example:
+             !include /Examples/Example-Send.json
+
+
+/fileList:
+  is: [customLib.Client_id_Enforcement]
+  description: Get the File name from the PAPI
+  get:
+    responses:
+      200:
+        body:
+          application/json:  
+            example: !include /Examples/Example-FileName.json
+              
+
+/addData :
+  is: [customLib.QueryParams, customLib.Client_id_Enforcement]
+  description: Update call send to the PAPI
+  put:
+    responses:
+      201:
+        body:
+          application/json:  
+            example:   !include /Examples/Example-Post_SFTP.json
+              
+
+          

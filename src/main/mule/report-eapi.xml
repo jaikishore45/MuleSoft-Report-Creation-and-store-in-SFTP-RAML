@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+    
+	<flow name="report-eapi-main">
+        <http:listener config-ref="report-eapi-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpCode]" reasonPhrase="#[vars.httpStatus]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="report-eapi-config" />
+        <error-handler ref="global-error-ImplementationError_Handler">
+           
+        </error-handler>
+    </flow>
+    <flow name="report-eapi-console">
+        <http:listener config-ref="report-eapi-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="report-eapi-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="report-eapiFlow" doc:id="6fb0e97c-d8f9-4b6a-a2ca-c37e5f09f253">
+        <scheduler doc:name="Scheduler" doc:id="a61ba3b5-1820-4aa6-91ec-697b06558149">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1" timeUnit="HOURS" />
+            </scheduling-strategy>
+        </scheduler>
+        <logger level="INFO" doc:name="Logger to show Automated Initated" doc:id="d7097ed2-d4de-4f82-80b9-4a3688cdad76" message="Automated -&gt; Initiated" />
+		<flow-ref doc:name="Flow Reference to SFTPRead-Imp" doc:id="1aaac15f-6418-4d7d-aae0-1f40a1720709" name="sftpRead-implementationSub_Flow" />
+		<ee:transform doc:name="Storing Headers" doc:id="5315f1b8-5d00-4aaa-9d30-9aaf23581a4d">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="directory"><![CDATA[attributes.headers.directory]]></ee:set-variable>
+				<ee:set-variable variableName="fileName"><![CDATA[attributes.headers.fileName]]></ee:set-variable>
+				<ee:set-variable variableName="clientID" ><![CDATA["32664f1b1ebb46e4a5ee5743acd1d5b9"]]></ee:set-variable>
+				<ee:set-variable variableName="clientSecret" ><![CDATA["2a052a95Bc71478997Df07858C748E89"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<try doc:name="Try" doc:id="62a02f78-5582-4c13-99e5-fd8a88d13055">
+			<http:request method="PUT" doc:name="Request to papi" doc:id="99ea391b-85e8-41f3-a4bb-5fbf54dc988f" config-ref="HTTP_Request_configuration" url="https://report-papi-40lnz0.5sc6y6-1.usa-e2.cloudhub.io/api/automatedRec">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	fileName : "dailyReport.csv",
+	client_secret : vars.clientSecret,
+	directory : "Data",
+	client_id : vars.clientID
+}]]]></http:headers>
+		</http:request>
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ab482c9a-7ae7-4c70-ab0a-df81933f2d32" type="HTTP:BAD_GATEWAY, HTTP:BAD_REQUEST">
+					<ee:transform doc:name="Error Trans Message" doc:id="a9fc2b61-f057-450a-ad55-60b2dec350b8">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": 503,
+	"Message": "Unable to make Request"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="httpCode"><![CDATA[503]]></ee:set-variable>
+							<ee:set-variable variableName="httpStatus"><![CDATA["Bad Request"]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Response from papi" doc:id="c22aac4f-5703-4c27-9d5d-44c8e89d2f43" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger to show Automated Ended" doc:id="33ffd06a-a026-4a95-8ef3-bd83297fa8ec" message="Automated -&gt; Initiated"/>
+    </flow>
+    <flow name="get:\Report:report-eapi-config">
+		<logger level="INFO" doc:name="Logger" doc:id="4c0397c1-410a-469c-9d55-9d8f1b28f064" message="Get Report endpoint -&gt; Started"/>
+		<ee:transform doc:name="Storing querParams, Headers" doc:id="7cadb0bd-4bde-4bc5-bc3b-24618d524863">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="directory"><![CDATA[attributes.queryParams.directory]]></ee:set-variable>
+				<ee:set-variable variableName="fileName"><![CDATA[attributes.queryParams.fileName]]></ee:set-variable>
+				<ee:set-variable variableName="clientID"><![CDATA["32664f1b1ebb46e4a5ee5743acd1d5b9"]]></ee:set-variable>
+				<ee:set-variable variableName="clientSecret"><![CDATA["2a052a95Bc71478997Df07858C748E89"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<try doc:name="Try" doc:id="db9cf26b-2b41-40da-bb81-5d3f88a43717" >
+			<http:request method="GET" doc:name="Request to papi" doc:id="481c3538-117c-4e87-96e1-101772914dd5" config-ref="HTTP_Request_configuration" url="https://report-papi-40lnz0.5sc6y6-1.usa-e2.cloudhub.io/api/getReport">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	fileName : vars.fileName,
+	client_secret : vars.clientSecret,
+	directory : vars.directory,
+	client_id : vars.clientID
+}]]]></http:headers>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3aa67eda-c1fe-44b8-81bf-c053edf99320" type="HTTP:BAD_GATEWAY, HTTP:BAD_REQUEST">
+					<ee:transform doc:name="Error Trans Message" doc:id="4e3023e5-53b3-4e2b-94b5-c80cd978cb3d" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": 503,
+	"Message": "Unable to make Request"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="httpCode" ><![CDATA[503]]></ee:set-variable>
+							<ee:set-variable variableName="httpStatus" ><![CDATA["Bad Request"]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="697b0853-a58e-491b-910c-b22590a40048" message="Get Report endpoint -&gt; Ended"/>
+    </flow>
+    <flow name="get:\fileList:report-eapi-config">
+		<logger level="INFO" doc:name="Logger" doc:id="029233c1-498e-4501-851b-ad10df71cad0" message="Get FileList endpoint -&gt; Started"/>
+		<ee:transform doc:name="Storing querParams, Headers" doc:id="7d3f7c07-a43b-45de-9d9c-14e264486809">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="directory"><![CDATA[attributes.headers.directory]]></ee:set-variable>
+				<ee:set-variable variableName="fileName"><![CDATA[attributes.headers.fileName]]></ee:set-variable>
+				<ee:set-variable variableName="clientID"><![CDATA["32664f1b1ebb46e4a5ee5743acd1d5b9"]]></ee:set-variable>
+				<ee:set-variable variableName="clientSecret"><![CDATA["2a052a95Bc71478997Df07858C748E89"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<try doc:name="Try" doc:id="7d2f33a9-6265-4e1c-9421-6be11afd1d64" >
+			<http:request method="GET" doc:name="Request to papi" doc:id="be8bae6e-f029-4b23-8841-34a59ff42d3e" config-ref="HTTP_Request_configuration" url="https://report-papi-40lnz0.5sc6y6-1.usa-e2.cloudhub.io/api/getFileName">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	fileName : vars.fileName,
+	client_secret : vars.clientSecret,
+	directory : vars.directory,
+	client_id : vars.clientID
+}]]]></http:headers>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="568fa890-1c0a-441c-8347-8ae14075d5cd" type="HTTP:BAD_GATEWAY, HTTP:BAD_REQUEST">
+					<ee:transform doc:name="Error Trans Message" doc:id="e73955f5-81ac-42a1-995f-db864ea7dccd" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": 503,
+	"Message": "Unable to make Request"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables >
+							<ee:set-variable variableName="httpCode" ><![CDATA[503]]></ee:set-variable>
+							<ee:set-variable variableName="httpStatus" ><![CDATA["Bad Request"]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<logger level="INFO" doc:name="Logger" doc:id="903d438e-22bc-4454-a3d6-efe9d8b6623a" message="Get FileList endpoint -&gt; Ended"/>
+    </flow>
+    <flow name="put:\addData:report-eapi-config">
+		<logger level="INFO" doc:name="Logger" doc:id="61d41945-0961-4122-98b6-72a1f30d617c" message="Add Data endpoint -&gt; Started"/>
+		<ee:transform doc:name="Storing querParams, Headers" doc:id="1b9e6b12-8acd-4264-9453-9a2feb66ef01">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="directory"><![CDATA[attributes.queryParams.directory]]></ee:set-variable>
+				<ee:set-variable variableName="fileName"><![CDATA[attributes.queryParams.fileName]]></ee:set-variable>
+				<ee:set-variable variableName="clientID"><![CDATA["32664f1b1ebb46e4a5ee5743acd1d5b9"]]></ee:set-variable>
+				<ee:set-variable variableName="clientSecret"><![CDATA["2a052a95Bc71478997Df07858C748E89"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<try doc:name="Try" doc:id="9bb7ce92-0550-4550-ab2a-79cf58cb655d">
+			<http:request method="PUT" doc:name="Request to papi" doc:id="6ca8e9bd-f922-4721-bde4-cee59f0a5241" config-ref="HTTP_Request_configuration" url="https://report-papi-40lnz0.5sc6y6-1.usa-e2.cloudhub.io/api/addRecords">
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	fileName : vars.fileName,
+	client_secret : vars.clientSecret,
+	directory : vars.directory,
+	client_id : vars.clientID
+}]]]></http:headers>
+		</http:request>
+			<error-handler>
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="660cfa42-2e40-49ac-9c5a-ff6c1c03e999" type="HTTP:BAD_GATEWAY, HTTP:BAD_REQUEST">
+					<ee:transform doc:name="Error Trans Message" doc:id="f161e27e-bbc3-41e2-be1f-afabaaff15e3">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": 503,
+	"Message": "Unable to make Request"
+}]]></ee:set-payload>
+						</ee:message>
+						<ee:variables>
+							<ee:set-variable variableName="httpCode"><![CDATA[503]]></ee:set-variable>
+							<ee:set-variable variableName="httpStatus"><![CDATA["Bad Request"]]></ee:set-variable>
+						</ee:variables>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Success Message" doc:id="a5f7123d-fa67-436c-87df-101147676c2f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code":201,
+	"Message":"Data Inserted Successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="a968a20c-250a-4b42-8eec-fd8a53ed1ab1" message="Add Data endpoint -&gt; Ended"/>
+    </flow>
+</mule>

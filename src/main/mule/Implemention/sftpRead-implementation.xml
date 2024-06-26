@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="82cc3d1d-04e0-4834-ae05-4c5196f020cd" >
+		<sftp:connection workingDir="/Data" host="eu-west-1.sftpcloud.io" username="f05affdab3534e129da006c92be57754" password="3wGyqAru1nHnRflhvwhS9QVjA5bzlqvR" />
+	</sftp:config>
+	<sub-flow name="sftpRead-implementationSub_Flow" doc:id="d23d6a2b-4e22-4dd0-9780-bbeb717467b0" >
+		<sftp:read doc:name="Read Data from dailyReport.csv" doc:id="c079c0db-8fb8-4a97-9b00-e0906096da8e" config-ref="SFTP_Config" path="/Data/dailyReport.csv"/>
+	</sub-flow>
+</mule>
